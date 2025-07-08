@@ -65,6 +65,24 @@ cd AI-Deployment/smart-crowd-intelligence
 ./scripts/setup.sh
 ```
 
+### 🚀 Quick Demo (GitHub Codespaces)
+
+**Want to test immediately? Use our simplified demo:**
+
+**Option 1 - One-Click Setup:**
+```bash
+cd smart-crowd-intelligence && ./quick_demo.sh
+```
+
+**Option 2 - Manual Setup:**
+1. **Open in Codespaces**: Click "Code" → "Codespaces" → "Create codespace"
+2. **Navigate**: `cd smart-crowd-intelligence` 
+3. **Setup**: `python3 -m venv venv && source venv/bin/activate && pip install fastapi uvicorn websockets`
+4. **Run**: `python demo_server.py`
+5. **Access**: Open http://localhost:8000 in browser
+
+See [CODESPACE_DEMO.md](CODESPACE_DEMO.md) for detailed instructions.
+
 ### Development Setup
 
 ```bash
