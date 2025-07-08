@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres_dev:
+    image: postgres:15-alpine
+    container_name: sci_postgres_dev
+    environment:
+      POSTGRES_DB: crowd_intelligence_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+    networks:
+      - sci_dev_network
+
+  # Redis Cache for Development
+  redis_dev:
+    image: redis:7-alpine
+    container_name: sci_redis_dev
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+    networks:
+      - sci_dev_network
+
+  # Smart Crowd Intelligence API (Development)
+  sci_api_dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: sci_api_dev
+    environment:
+      - DATABASE_URL=postgresql://dev_user:dev_password@postgres_dev:5432/crowd_intelligence_dev
+      - REDIS_URL=redis://redis_dev:6379/0
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ..:/app
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ports:
+      - "8001:8000"  # Different port for dev
+      - "8888:8888"  # Jupyter
+      - "8081:8080"  # WebSocket
+    depends_on:
+      - postgres_dev
+      - redis_dev
+    restart: unless-stopped
+    networks:
+      - sci_dev_network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      sh -c "
+        pip install -e . &&
+        uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+      "
+
+  # Jupyter Notebook for Development
+  jupyter:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: sci_jupyter
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=development_token
+    volumes:
+      - ..:/app
+      - jupyter_data:/home/jovyan/work
+    ports:
+      - "8888:8888"
+    networks:
+      - sci_dev_network
+    command: >
+      sh -c "
+        jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='development_token'
+      "
+
+  # Development Database Admin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sci_pgadmin_dev
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@sci-dev.local
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres_dev
+    networks:
+      - sci_dev_network
+
+  # Redis Admin
+  redis_commander:
+    image: rediscommander/redis-commander:latest
+    container_name: sci_redis_commander
+    environment:
+      - REDIS_HOSTS=local:redis_dev:6379
+    ports:
+      - "8082:8081"
+    depends_on:
+      - redis_dev
+    networks:
+      - sci_dev_network
+
+  # File Server for Development
+  file_server:
+    image: nginx:alpine
+    container_name: sci_file_server
+    volumes:
+      - ../sample_videos:/usr/share/nginx/html/videos:ro
+      - ../data:/usr/share/nginx/html/data:ro
+      - ./dev-nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8083:80"
+    networks:
+      - sci_dev_network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  jupyter_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  sci_dev_network:
+    driver: bridge

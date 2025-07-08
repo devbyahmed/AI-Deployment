@@ -1,0 +1,238 @@
+# Smart Crowd Intelligence System Configuration
+
+# Application Settings
+app:
+  name: "Smart Crowd Intelligence System"
+  version: "1.0.0"
+  environment: "production"  # production, development, testing
+  debug: false
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  reload: false
+  access_log: true
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+    - "https://your-domain.com"
+
+# Database Configuration
+database:
+  url: "postgresql://sci_user:sci_password_2024@postgres:5432/crowd_intelligence"
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+  pool_recycle: 3600
+  echo: false
+
+# Redis Configuration
+redis:
+  url: "redis://:redis_password_2024@redis:6379/0"
+  max_connections: 50
+  retry_on_timeout: true
+  socket_timeout: 5
+  socket_connect_timeout: 5
+
+# DeepStream Configuration
+deepstream:
+  config_file: "config/deepstream_app_config.txt"
+  tracker_config: "config/tracker_config.txt"
+  model_configs:
+    primary_detector: "config/yolo_config.txt"
+    secondary_classifier: "config/resnet_config.txt"
+  
+  # Pipeline Settings
+  pipeline:
+    batch_size: 4
+    width: 1920
+    height: 1080
+    fps: 30
+    gpu_id: 0
+    
+  # Tiler Settings
+  tiler:
+    rows: 2
+    columns: 2
+    width: 1280
+    height: 720
+
+# AI Model Configuration
+ai_models:
+  crowd_detection:
+    model_path: "models/crowd_detection_model.pth"
+    confidence_threshold: 0.5
+    nms_threshold: 0.4
+    input_size: [640, 640]
+    batch_size: 8
+    
+  density_estimation:
+    model_path: "models/density_estimation_model.pth"
+    scale_factor: 100
+    gaussian_kernel_size: 15
+    batch_size: 4
+    
+  behavior_analysis:
+    temporal_model_path: "models/behavior_temporal_model.pth"
+    spatial_model_path: "models/behavior_spatial_model.pth"
+    anomaly_model_path: "models/anomaly_detector_model.pth"
+    sequence_length: 30
+    confidence_threshold: 0.7
+    anomaly_threshold: 0.1
+
+# Alert System Configuration
+alerts:
+  enabled: true
+  levels:
+    - "LOW"
+    - "MEDIUM" 
+    - "HIGH"
+    - "CRITICAL"
+  
+  thresholds:
+    crowd_count:
+      medium: 50
+      high: 100
+      critical: 200
+    density:
+      medium: 15
+      high: 25
+      critical: 35
+    movement_speed:
+      low_threshold: 0.5  # m/s
+      high_threshold: 5.0  # m/s
+  
+  escalation:
+    enabled: true
+    timeout_minutes: 5
+    max_escalations: 3
+  
+  rate_limiting:
+    max_alerts_per_minute: 10
+    cooldown_seconds: 30
+  
+  notifications:
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: ""
+      password: ""
+      recipients: []
+    
+    webhook:
+      enabled: false
+      url: ""
+      timeout: 10
+
+# Stream Processing Configuration
+streams:
+  max_concurrent: 8
+  default_fps: 30
+  buffer_size: 10
+  timeout_seconds: 30
+  
+  rtsp:
+    transport: "tcp"  # tcp, udp
+    latency: 200  # milliseconds
+    
+  recording:
+    enabled: false
+    duration_minutes: 60
+    storage_path: "/app/data/recordings"
+    format: "mp4"
+
+# Analytics Configuration
+analytics:
+  historical_data_retention_days: 90
+  aggregation_intervals:
+    - "1m"
+    - "5m"
+    - "15m"
+    - "1h"
+    - "1d"
+  
+  density_calculation:
+    method: "voronoi"  # grid, kernel, voronoi, perspective
+    grid_size: [20, 20]
+    kernel_bandwidth: 50
+    
+  movement_analysis:
+    tracking_max_age: 30
+    tracking_min_hits: 3
+    tracking_iou_threshold: 0.3
+    velocity_smoothing: 0.8
+
+# Monitoring Configuration
+monitoring:
+  metrics:
+    enabled: true
+    port: 9090
+    path: "/metrics"
+  
+  health_check:
+    enabled: true
+    interval_seconds: 30
+    timeout_seconds: 10
+  
+  logging:
+    format: "json"  # json, text
+    file_path: "/app/logs/sci.log"
+    max_file_size_mb: 100
+    backup_count: 5
+    
+  performance:
+    collect_metrics: true
+    profile_requests: false
+    max_request_time_seconds: 30
+
+# Security Configuration
+security:
+  api_key_header: "X-API-Key"
+  allowed_hosts: ["*"]
+  max_request_size_mb: 100
+  
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+    burst_size: 20
+  
+  cors:
+    allow_origins: ["*"]
+    allow_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers: ["*"]
+    allow_credentials: true
+
+# Data Storage Configuration
+storage:
+  uploads_path: "/app/uploads"
+  models_path: "/app/models"
+  logs_path: "/app/logs"
+  data_path: "/app/data"
+  temp_path: "/tmp"
+  
+  cleanup:
+    temp_files_hours: 24
+    log_files_days: 30
+    upload_files_days: 7
+
+# Feature Flags
+features:
+  enable_gpu_acceleration: true
+  enable_model_caching: true
+  enable_video_recording: false
+  enable_facial_recognition: false
+  enable_advanced_analytics: true
+  enable_real_time_alerts: true
+  enable_behavior_prediction: true
+
+# Development Settings (only used in development mode)
+development:
+  auto_reload: true
+  debug_toolbar: true
+  sample_data: true
+  mock_gpu: false
+  fast_startup: true
