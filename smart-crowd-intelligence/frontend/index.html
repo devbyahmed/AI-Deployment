@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Crowd Intelligence Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1><i class="fas fa-users"></i> Smart Crowd Intelligence</h1>
+                <div class="connection-status">
+                    <div class="status-indicator" id="connectionStatus"></div>
+                    <span id="connectionText">Connecting...</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="system-time" id="systemTime"></div>
+                <button class="settings-btn" onclick="openSettings()">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-main">
+            <!-- Real-time Metrics -->
+            <section class="metrics-section">
+                <div class="metric-card primary">
+                    <div class="metric-header">
+                        <i class="fas fa-users"></i>
+                        <h3>Current Count</h3>
+                    </div>
+                    <div class="metric-value" id="currentCount">0</div>
+                    <div class="metric-change" id="countChange">--</div>
+                </div>
+                
+                <div class="metric-card secondary">
+                    <div class="metric-header">
+                        <i class="fas fa-th"></i>
+                        <h3>Density Level</h3>
+                    </div>
+                    <div class="metric-value" id="densityLevel">Low</div>
+                    <div class="metric-change" id="densityValue">0.0</div>
+                </div>
+                
+                <div class="metric-card warning">
+                    <div class="metric-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Active Alerts</h3>
+                    </div>
+                    <div class="metric-value" id="activeAlerts">0</div>
+                    <div class="metric-change" id="alertLevel">Normal</div>
+                </div>
+                
+                <div class="metric-card info">
+                    <div class="metric-header">
+                        <i class="fas fa-video"></i>
+                        <h3>Active Streams</h3>
+                    </div>
+                    <div class="metric-value" id="activeStreams">0</div>
+                    <div class="metric-change" id="streamStatus">Offline</div>
+                </div>
+            </section>
+
+            <!-- Video Streams and Alerts -->
+            <section class="content-section">
+                <div class="streams-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-video"></i> Live Video Streams</h2>
+                        <button class="add-stream-btn" onclick="addStream()">
+                            <i class="fas fa-plus"></i> Add Stream
+                        </button>
+                    </div>
+                    <div class="streams-grid" id="streamsGrid">
+                        <!-- Dynamic stream cards will be added here -->
+                    </div>
+                </div>
+
+                <div class="alerts-panel">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-bell"></i> Real-time Alerts</h2>
+                        <div class="alert-filters">
+                            <select id="alertFilter" onchange="filterAlerts()">
+                                <option value="all">All Alerts</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="alerts-list" id="alertsList">
+                        <!-- Dynamic alerts will be added here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Charts -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Crowd Count Trends</h3>
+                        <div class="chart-controls">
+                            <select id="timeRange" onchange="updateCharts()">
+                                <option value="1h">Last Hour</option>
+                                <option value="6h">Last 6 Hours</option>
+                                <option value="24h">Last 24 Hours</option>
+                                <option value="7d">Last 7 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="crowdTrendsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Density Heatmap</h3>
+                        <div class="heatmap-legend">
+                            <div class="legend-item low">Low</div>
+                            <div class="legend-item medium">Medium</div>
+                            <div class="legend-item high">High</div>
+                            <div class="legend-item critical">Critical</div>
+                        </div>
+                    </div>
+                    <div class="heatmap-container" id="densityHeatmap">
+                        <!-- Heatmap visualization -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Movement Analysis -->
+            <section class="movement-section">
+                <div class="movement-panel">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-route"></i> Movement Analysis</h3>
+                    </div>
+                    <div class="movement-metrics">
+                        <div class="movement-metric">
+                            <span class="metric-label">Avg Speed</span>
+                            <span class="metric-value" id="avgSpeed">0.0 m/s</span>
+                        </div>
+                        <div class="movement-metric">
+                            <span class="metric-label">Flow Direction</span>
+                            <span class="metric-value" id="flowDirection">--</span>
+                        </div>
+                        <div class="movement-metric">
+                            <span class="metric-label">Congestion</span>
+                            <span class="metric-value" id="congestionLevel">Low</span>
+                        </div>
+                    </div>
+                    <canvas id="movementChart"></canvas>
+                </div>
+
+                <div class="behavior-panel">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-brain"></i> Behavior Analysis</h3>
+                    </div>
+                    <div class="behavior-status" id="behaviorStatus">
+                        <div class="behavior-indicator normal" id="behaviorIndicator"></div>
+                        <div class="behavior-text">
+                            <div class="behavior-type" id="behaviorType">Normal Flow</div>
+                            <div class="behavior-confidence" id="behaviorConfidence">95% confidence</div>
+                        </div>
+                    </div>
+                    <div class="risk-assessment" id="riskAssessment">
+                        <div class="risk-level low" id="riskLevel">Low Risk</div>
+                        <div class="risk-factors" id="riskFactors"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for adding streams -->
+    <div id="streamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Stream</h3>
+                <span class="close" onclick="closeModal('streamModal')">&times;</span>
+            </div>
+            <form id="streamForm" onsubmit="submitStream(event)">
+                <div class="form-group">
+                    <label for="streamId">Stream ID:</label>
+                    <input type="text" id="streamId" required>
+                </div>
+                <div class="form-group">
+                    <label for="streamUri">Stream URI:</label>
+                    <input type="text" id="streamUri" placeholder="rtsp://..." required>
+                </div>
+                <div class="form-group">
+                    <label for="streamLocation">Location:</label>
+                    <input type="text" id="streamLocation" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('streamModal')">Cancel</button>
+                    <button type="submit">Add Stream</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>System Settings</h3>
+                <span class="close" onclick="closeModal('settingsModal')">&times;</span>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h4>Alert Thresholds</h4>
+                    <div class="form-group">
+                        <label for="densityThreshold">Density Warning Threshold:</label>
+                        <input type="number" id="densityThreshold" min="1" max="100" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="crowdThreshold">Crowd Count Threshold:</label>
+                        <input type="number" id="crowdThreshold" min="1" max="1000" value="50">
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h4>Display Options</h4>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="enableSounds" checked>
+                            Enable Alert Sounds
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="autoRefresh" checked>
+                            Auto Refresh (30s)
+                        </label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('settingsModal')">Cancel</button>
+                    <button type="button" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="dashboard.js"></script>
+    <script src="alerts.js"></script>
+</body>
+</html>
