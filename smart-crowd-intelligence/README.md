@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+# AI-Deployment
+=======
 # Smart Event Crowd Intelligence System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -513,3 +516,4 @@ For enterprise deployment, custom model training, and professional support:
 **Built with ❤️ for safer, smarter events**
 
 *Smart Event Crowd Intelligence System - Protecting people through intelligent monitoring*
+>>>>>>> smart-crowd-intelligence-system
